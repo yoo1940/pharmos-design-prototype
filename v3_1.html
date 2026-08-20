@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PharmOS Design Prototype v3.1</title>
+<style>
+:root{
+  --bg:#f4f6f8;--surface:#fff;--soft:#f8fafb;--ink:#17212b;--muted:#687581;--line:#dde3e8;
+  --brand:#275f8f;--brand2:#1f7b6f;--danger:#b93838;--warn:#a96912;--ok:#26705c;
+  --shadow:0 10px 28px rgba(20,35,50,.08);--r:18px;--safe:env(safe-area-inset-bottom,0px)
+}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Apple SD Gothic Neo",sans-serif}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+.app{min-height:100vh}.top{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.toprow{display:flex;justify-content:space-between;align-items:center;padding:13px 14px 9px}.brand{font-size:21px;font-weight:900;letter-spacing:-.03em}.tag{font-size:10px;color:var(--muted);margin-top:2px}
+.rolebox{display:flex;background:#eef2f4;border-radius:12px;padding:3px}.rolebox button{border:0;background:transparent;border-radius:9px;padding:8px 10px;font-size:12px}.rolebox button.on{background:#fff;box-shadow:0 1px 5px #0001;font-weight:850}
+.rolehint{font-size:10px;color:var(--muted);padding:0 14px 8px;text-align:right}
+.command{padding:0 14px 12px}.commandbox{display:flex;gap:7px;align-items:center;border:1px solid #d5dde3;background:#f5f7f9;border-radius:14px;padding:5px}.commandbox input{flex:1;min-width:0;border:0;outline:0;background:transparent;padding:10px 7px}.commandbox button{border:0;background:var(--brand);color:#fff;border-radius:10px;padding:10px 12px;font-weight:850}
+.shell{max-width:1220px;margin:auto;padding:16px 14px calc(92px + var(--safe))}.view{display:none}.view.active{display:block}
+.eyebrow{font-size:11px;letter-spacing:.12em;font-weight:900;color:var(--brand2)}h1{font-size:28px;letter-spacing:-.04em;margin:4px 0 6px}h2{font-size:17px;margin:0}.lead{font-size:13px;color:var(--muted);line-height:1.55;margin:0}
+.surface{background:#fff;border:1px solid var(--line);border-radius:var(--r);margin-top:14px;overflow:hidden}.surface.elevated{box-shadow:var(--shadow)}
+.surfacehead{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:15px 15px 11px}.surfacehead small{font-size:11px;color:var(--muted)}
+.pills{display:flex;gap:8px;overflow:auto;padding:12px 0 2px}.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 12px;white-space:nowrap;font-size:12px}.pill.on{background:#eaf2f7;color:#194d73;border-color:#c6d8e5;font-weight:850}
+.resume{background:#eef5f4;border-color:#d5e6e2}.resumeBody{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:2px 15px 15px}.resume b{font-size:14px}.resume p{font-size:12px;color:var(--muted);margin:4px 0 0}
+.btn{border:1px solid var(--line);background:#fff;border-radius:11px;min-height:44px;padding:9px 13px;font-weight:750}.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}.btn.ok{background:var(--brand2);border-color:var(--brand2);color:#fff}.btn.danger{color:var(--danger)}
+.taskgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0 14px 14px}.task{border:1px solid var(--line);background:#fff;border-radius:14px;min-height:94px;padding:11px;text-align:left;display:flex;flex-direction:column;justify-content:space-between}.task b{font-size:13px;line-height:1.25}.task small{font-size:11px;color:var(--muted)}.task.warn{background:#fffaf2;border-color:#ead7b5}.task.danger{background:#fff6f6;border-color:#efcece}.task.selected{outline:2px solid #7da7c6}
+.taskAction{display:none;margin:-4px 14px 14px;padding:12px;border:1px solid #c9dbe7;background:#f5f9fc;border-radius:14px}.taskAction.show{display:block}.actionrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-top:1px solid #edf0f2}.row:first-child{border-top:0}.row b{font-size:13px}.row small{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+.badge{font-size:10px;font-weight:850;padding:5px 8px;border-radius:999px;background:#edf1f4}.badge.red{background:#fdecec;color:#a93030}.badge.amber{background:#fff1d9;color:#8b5b11}.badge.green{background:#e6f2ee;color:#286753}
+.steps{display:flex;gap:6px;overflow:auto;padding:0 14px 14px}.step{border:0;padding:8px 10px;border-radius:999px;background:#eef1f3;color:#66737d;white-space:nowrap;font-size:11px}.step.on{background:#dbeaf3;color:#194d73;font-weight:850}.step.done{background:#e0eee9;color:#245f52}
+.stage{display:none}.stage.active{display:block}.field{padding:12px 14px;border-top:1px solid #edf0f2}.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px;background:#fff}
+.invHero{padding:14px}.progress{height:8px;border-radius:999px;background:#e9edf0;overflow:hidden;margin:9px 0}.progress i{display:block;width:42%;height:100%;background:var(--brand2)}.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.kpi{background:var(--soft);border-radius:12px;padding:10px}.kpi span{font-size:10px;color:var(--muted)}.kpi b{display:block;font-size:17px;margin-top:3px}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:8px}.compare>div{border:1px solid var(--line);border-radius:12px;padding:11px}.compare label{font-size:10px;color:var(--muted)}.compare b{display:block;margin-top:4px;font-size:13px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:#eef2f4;border-radius:11px;padding:3px}.seg button{border:0;background:transparent;border-radius:9px;padding:9px}.seg button.on{background:#fff;box-shadow:0 1px 4px #0001;font-weight:800}
+.reportDraft{display:none}.reportDraft.show{display:block}.agendaDay{font-size:12px;color:var(--muted);padding:13px 14px 4px}.agendaItem{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:12px 14px;border-top:1px solid #edf0f2}.notice{margin:12px 14px;padding:11px 12px;background:#fff6e8;border-radius:12px;color:#76531d;font-size:12px;line-height:1.5}
+.manageGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.manageCard{border:1px solid var(--line);background:#fff;border-radius:15px;padding:14px;text-align:left;min-height:105px}.manageCard b{display:block;font-size:14px}.manageCard span{display:block;font-size:11px;color:var(--muted);margin-top:6px;line-height:1.45}
+.ownerOnly{display:none}.manager-mode .ownerOnly{display:block}.manager-mode .ownerOnly.inline{display:flex}
+.managerBanner{display:none;background:#edf3f8;border:1px solid #cfdae4;border-radius:14px;padding:12px 14px;margin-top:12px}.manager-mode .managerBanner{display:block}
+.bottom{position:fixed;left:0;right:0;bottom:0;z-index:70;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,255,255,.96);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:6px 5px calc(6px + var(--safe))}.bottom button{border:0;background:transparent;min-height:56px;color:#66737d;font-size:10px}.bottom button.on{color:var(--brand);font-weight:850}.ico{display:block;font-size:19px;margin-bottom:3px}
+.toast{position:fixed;left:14px;right:14px;bottom:82px;z-index:100;background:#172a3a;color:#fff;border-radius:13px;padding:13px 14px;opacity:0;transform:translateY(8px);transition:.18s;pointer-events:none}.toast.show{opacity:1;transform:none}
+.sheetbg{display:none;position:fixed;inset:0;background:#13253488;z-index:110;align-items:flex-end}.sheetbg.show{display:flex}.sheet{width:100%;background:#fff;border-radius:22px 22px 0 0;padding:18px;max-height:80vh;overflow:auto}.sheet h3{margin:0 0 5px}.sheet p{font-size:13px;color:var(--muted);line-height:1.5}
+.desktopnav{display:none}
+@media(min-width:900px){
+ .app{display:grid;grid-template-columns:230px 1fr}.top{grid-column:2}.desktopnav{display:block;grid-row:1/span 2;background:#182b3b;color:#fff;min-height:100vh;position:sticky;top:0;padding:22px 14px}
+ .desktopnav h2{margin:0 10px 20px}.desktopnav .group{font-size:10px;color:#92a4b2;margin:18px 10px 6px;text-transform:uppercase;letter-spacing:.1em}.desktopnav button{width:100%;border:0;background:transparent;color:#d7e0e6;text-align:left;border-radius:10px;padding:11px 12px;margin:2px 0}.desktopnav button.on{background:#29465c;color:#fff;font-weight:800}
+ .bottom{display:none}.shell{padding:22px 24px 40px}.taskgrid{grid-template-columns:repeat(4,minmax(0,1fr))}.manageGrid{grid-template-columns:repeat(4,1fr)}.sheetbg{align-items:center;justify-content:center}.sheet{max-width:560px;border-radius:20px}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+<aside class="desktopnav">
+  <h2>PharmOS</h2>
+  <div class="group">업무</div>
+  <button data-go="today" class="on">오늘</button>
+  <button onclick="toast('새 업무 작성 예시')">새 업무</button>
+  <button onclick="toast('반복업무 관리 예시')">반복업무</button>
+  <button onclick="toast('업무 이력 예시')">업무 이력</button>
+  <div class="group">운영</div>
+  <button data-go="inventory">재고</button><button data-go="reports">보고</button><button data-go="schedule">근무·휴가</button>
+  <div class="group ownerOnly">관리</div>
+  <button data-go="manage" class="ownerOnly">관리 센터</button>
+</aside>
+
+<header class="top">
+ <div class="toprow">
+   <div><div class="brand">PharmOS</div><div class="tag">v3.1 · Calm Professional Intelligence</div></div>
+   <div class="rolebox"><button id="staffBtn" class="on" onclick="setRole('staff')">직원</button><button id="managerBtn" onclick="setRole('manager')">약국장</button></div>
+ </div>
+ <div class="rolehint">프로토타입 역할 시뮬레이션 · 실제 권한 변경 아님</div>
+ <div class="command"><div class="commandbox"><span>⌘</span><input id="cmd" placeholder="예: 재고실사 계속 / 관리센터 열어줘"><button onclick="runCommand()">실행</button></div></div>
+</header>
+
+<main class="shell">
+<section id="today" class="view active">
+ <div class="eyebrow">NOW</div><h1>지금 약국 상황</h1><p class="lead">한눈에 파악하고, 바로 행동하고, 중단돼도 다시 이어갑니다.</p>
+ <div class="managerBanner"><b>약국장 모드</b><div class="lead">직원 일상 화면은 유지하면서 관리·승인·분석 capability가 추가로 열립니다.</div></div>
+ <div class="pills"><button class="pill on">지금 5</button><button class="pill">지연 2</button><button class="pill">오늘 8</button><button class="pill">예정 6</button><button class="pill">완료 12</button></div>
+ <div class="surface resume elevated"><div class="surfacehead"><h2>이어하기</h2><small>12분 전</small></div><div class="resumeBody"><div><b>재고실사 · A-1 위치</b><p>회차 #24 · 18/43품목 입력</p></div><button class="btn ok" onclick="go('inventory');setInvStage(2);toast('실사 입력 지점으로 복귀했습니다.')">계속</button></div></div>
+ <div class="surface elevated"><div class="surfacehead"><h2>지금 처리</h2><small>선택 후 같은 문맥에서 행동</small></div>
+  <div class="taskgrid">
+   <button class="task danger" onclick="selectTask(this,'미확인 보고 2건')"><b>미확인 보고 2건</b><small>17:30 이전 확인</small></button>
+   <button class="task warn" onclick="selectTask(this,'재고 매칭 확인 6건')"><b>재고 매칭 확인</b><small>LOCAL 6건</small></button>
+   <button class="task" onclick="selectTask(this,'마감 체크리스트')"><b>마감 체크</b><small>3 / 5 완료</small></button>
+   <button class="task" onclick="selectTask(this,'배송 정리')"><b>배송 정리</b><small>16:00 예정</small></button>
+   <button class="task" onclick="selectTask(this,'직원 교대 확인')"><b>교대 확인</b><small>17:00 · 2명</small></button>
+   <button class="task" onclick="selectTask(this,'냉장고 온도기록')"><b>온도 기록</b><small>오늘 1회 남음</small></button>
+  </div>
+  <div class="taskAction" id="taskAction"><b id="taskTitle">업무</b><div class="actionrow"><button class="btn primary" onclick="completeSelected()">완료</button><button class="btn" onclick="toast('상세·수정 흐름을 엽니다.')">상세·수정</button><button class="btn danger" onclick="toast('누락 사유를 확인 후 기록합니다.')">누락</button></div></div>
+ </div>
+ <div class="surface ownerOnly"><div class="surfacehead"><h2>약국장 예외상황</h2><small>관리 모드에서만</small></div>
+   <div class="row"><div><b>가입 승인 대기</b><small>신규 직원 1명</small></div><button class="btn" onclick="go('manage')">검토</button></div>
+   <div class="row"><div><b>근무 충돌</b><small>금요일 18:00 역할 중복</small></div><button class="btn" onclick="go('schedule')">조정</button></div>
+ </div>
+</section>
+
+<section id="inventory" class="view">
+ <div class="eyebrow">OPERATE · INVENTORY</div><h1>재고 실사</h1><p class="lead">PM20과 LOCAL의 의미를 보존하면서 실사 흐름을 한 journey로 정리합니다.</p>
+ <div class="surface elevated">
+  <div class="invHero"><b>실사 회차 #24</b><div class="progress"><i></i></div><div class="kpis"><div class="kpi"><span>입력</span><b>18/43</b></div><div class="kpi"><span>미연결</span><b>6</b></div><div class="kpi"><span>차이</span><b>4</b></div></div></div>
+  <div class="steps"><button class="step on" onclick="setInvStage(1)">1 기준</button><button class="step" onclick="setInvStage(2)">2 실사</button><button class="step" onclick="setInvStage(3)">3 매칭</button><button class="step" onclick="setInvStage(4)">4 차이</button><button class="step" onclick="setInvStage(5)">5 확정</button></div>
+ </div>
+ <div id="inv1" class="stage active surface"><div class="surfacehead"><h2>기준 확인</h2><small>source ≠ actual</small></div><div class="row"><div><b>PM20 기준자료</b><small>오늘 09:10 import · source snapshot 보존</small></div><span class="badge green">정상</span></div><div class="row"><div><b>LOCAL 품목</b><small>PM20 미연결 6품목</small></div><span class="badge amber">확인 필요</span></div></div>
+ <div id="inv2" class="stage surface"><div class="surfacehead"><h2>실사 입력</h2><small>A-1 위치</small></div><div class="field"><label>품목</label><input value="타이레놀 500mg"></div><div class="field"><label>실재고 수량</label><input value="28"></div><div class="actionrow" style="padding:0 14px 14px"><button class="btn primary" onclick="toast('실재고 28개를 저장했습니다.')">저장</button><button class="btn" onclick="toast('음성 입력: 타이레놀 스물여덟 개')">🎙 음성</button><button class="btn danger" onclick="toast('직전 입력을 되돌렸습니다.')">직전 입력 되돌리기</button></div></div>
+ <div id="inv3" class="stage surface"><div class="surfacehead"><h2>LOCAL ↔ PM20 매칭</h2><small>candidate ≠ confirmed</small></div><div class="row"><div><b>LOCAL · 타이레놀정500</b><small>후보를 확인해야 합니다</small></div><span class="badge amber">REVIEW</span></div><div style="padding:0 14px 14px"><div class="compare"><div><label>LOCAL</label><b>타이레놀정500</b></div><div><label>PM20 후보</label><b>타이레놀정 500mg</b></div></div><div class="actionrow"><button class="btn ok" onclick="toast('PM20 연결을 확인했습니다. provenance는 유지됩니다.')">이 품목으로 연결</button><button class="btn" onclick="toast('LOCAL 유지 결정을 기록했습니다.')">LOCAL로 유지</button></div></div></div>
+ <div id="inv4" class="stage surface"><div class="surfacehead"><h2>차이 확인</h2><small>reconciliation과 별개</small></div><div class="row"><div><b>타이레놀정 500mg</b><small>PM20 기준 30 · 실사 28</small></div><span class="badge red">-2</span></div><div class="row"><div><b>아로나민골드</b><small>PM20 기준 12 · 실사 14</small></div><span class="badge amber">+2</span></div></div>
+ <div id="inv5" class="stage surface"><div class="surfacehead"><h2>검토 및 확정</h2><small>확정 후 lock</small></div><div class="notice">확정하면 이 실사 회차의 추가 입력·되돌리기가 잠깁니다. PM20을 직접 수정하는 동작은 아닙니다.</div><div class="actionrow" style="padding:0 14px 14px"><button class="btn primary" onclick="toast('프로토타입: 실사 회차를 확정·잠금 처리했습니다.')">확정</button><button class="btn" onclick="toast('Excel handoff 파일을 준비합니다.')">Excel 내보내기</button></div></div>
+</section>
+
+<section id="reports" class="view">
+ <div class="eyebrow">OPERATE · REPORTS</div><h1>보고</h1><p class="lead">공개범위와 확인 상태를 명확히 유지합니다.</p>
+ <div class="surface"><div class="surfacehead"><h2>미확인</h2><button class="btn primary" onclick="document.getElementById('draft').classList.toggle('show')">보고 작성</button></div><div class="row"><div><b>마감 전 냉장고 확인 부탁드립니다</b><small>김약사 · 전 직원 공개</small></div><button class="btn" onclick="toast('보고를 확인 처리했습니다.')">확인</button></div><div class="row"><div><b>금요일 근무 조정 건</b><small>이약사 · 약국장에게만 공개</small></div><span class="badge amber">미확인</span></div></div>
+ <div id="draft" class="reportDraft surface"><div class="surfacehead"><h2>새 보고</h2><small>audience 필수</small></div><div class="field"><textarea rows="4" placeholder="내용을 입력하세요"></textarea></div><div class="field"><label>공개 범위</label><div class="seg"><button class="on" onclick="seg(this)">전 직원 공개</button><button onclick="seg(this)">약국장에게만</button></div></div><div class="actionrow" style="padding:0 14px 14px"><button class="btn primary" onclick="toast('보고를 등록했습니다.')">등록</button></div></div>
+</section>
+
+<section id="schedule" class="view">
+ <div class="eyebrow">OPERATE · SCHEDULE</div><h1>근무·휴가</h1><p class="lead">모바일은 agenda-first, calendar는 필요할 때 봅니다.</p>
+ <div class="surface"><div class="surfacehead"><h2>오늘</h2><small>목요일</small></div><div class="agendaItem"><b>09:00</b><div><b>오전 근무</b><small>전약사 · 김약사</small></div><span class="badge green">정상</span></div><div class="agendaItem"><b>14:00</b><div><b>시간차</b><small>이약사 · 2시간</small></div><span class="badge">승인</span></div><div class="agendaItem ownerOnly"><b>18:00</b><div><b>역할 충돌</b><small>마감 책임자 중복</small></div><span class="badge red">조정 필요</span></div></div>
+ <div class="surface"><div class="surfacehead"><h2>잔여</h2><small>내 기준</small></div><div class="row"><div><b>연차</b><small>사용 가능</small></div><b>6.5일</b></div><div class="row"><div><b>대체근무</b><small>사용 가능</small></div><b>4시간</b></div></div>
+ <div class="surface ownerOnly"><div class="surfacehead"><h2>약국장 설정</h2><small>manager-only</small></div><div class="row"><div><b>휴일 / 영업일</b><small>정책 설정</small></div><button class="btn">설정</button></div><div class="row"><div><b>토요일 rotation</b><small>근무 순환 관리</small></div><button class="btn">관리</button></div></div>
+</section>
+
+<section id="manage" class="view">
+ <div class="eyebrow">MANAGE</div><h1>관리 센터</h1><p class="lead">권한을 바꾸는 화면이 아니라, 약국장에게 허용된 관리 capability의 진입점입니다.</p>
+ <div id="manageLocked" class="surface"><div class="notice">현재 직원 모드입니다. 이 프로토타입에서 관리 센터를 보려면 상단에서 <b>약국장</b>을 선택하세요. 실제 PharmOS에서는 인증된 role이 권한을 결정합니다.</div></div>
+ <div id="manageContent" class="ownerOnly">
+  <div class="manageGrid">
+   <button class="manageCard" onclick="toast('직원·가입·권한 관리')"><b>사람</b><span>직원, 가입 승인, 권한, 퇴사</span></button>
+   <button class="manageCard" onclick="toast('업무 시스템 관리')"><b>업무 시스템</b><span>반복업무, 분석, 근무 정책, rotation</span></button>
+   <button class="manageCard" onclick="toast('AI 품질·비용·학습 상태')"><b>Intelligence</b><span>AI 품질, 비용, correction, Local Shadow</span></button>
+   <button class="manageCard" onclick="toast('백업 및 시스템 설정')"><b>System</b><span>backup, account, system state</span></button>
+  </div>
+  <div class="surface"><div class="surfacehead"><h2>관리 Attention</h2><small>행동 가능한 것만</small></div><div class="row"><div><b>가입 승인 대기</b><small>신규 신청 1건</small></div><button class="btn primary">검토</button></div><div class="row"><div><b>AI 예상비용</b><small>이번 달 사용량 확인</small></div><button class="btn">보기</button></div><div class="row"><div><b>Backup</b><small>최근 생성 7일 전</small></div><button class="btn">실행</button></div></div>
+ </div>
+</section>
+</main>
+
+<nav class="bottom">
+ <button data-go="today" class="on"><span class="ico">●</span>오늘</button>
+ <button data-go="inventory"><span class="ico">▦</span>재고</button>
+ <button data-go="reports"><span class="ico">▤</span>보고</button>
+ <button data-go="schedule"><span class="ico">◫</span>근무</button>
+ <button data-go="manage"><span class="ico">⌘</span>전체</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+<div class="sheetbg" id="sheetbg" onclick="if(event.target===this)this.classList.remove('show')"><div class="sheet"><h3 id="sheetTitle"></h3><p id="sheetText"></p><div class="actionrow" id="sheetActions"></div></div></div>
+</div>
+
+<script>
+let role='staff', selectedTask=null;
+function go(id){
+  if(id==='manage' && role!=='manager'){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('manage').classList.add('active');
+    document.querySelectorAll('[data-go]').forEach(b=>b.classList.toggle('on',b.dataset.go==='manage'));
+    window.scrollTo({top:0,behavior:'smooth'});
+    return;
+  }
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('[data-go]').forEach(b=>b.classList.toggle('on',b.dataset.go===id));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+
+function setRole(next){
+  role=next;
+  const app=document.getElementById('app');
+  app.classList.toggle('manager-mode',role==='manager');
+  document.getElementById('staffBtn').classList.toggle('on',role==='staff');
+  document.getElementById('managerBtn').classList.toggle('on',role==='manager');
+  document.getElementById('manageLocked').style.display=role==='manager'?'none':'block';
+  if(role==='manager'){
+    toast('약국장 모드가 열렸습니다. 관리 capability가 추가로 표시됩니다.');
+    go('manage');
+  }else{
+    if(document.getElementById('manage').classList.contains('active')) go('today');
+    toast('직원 일상 화면으로 돌아왔습니다.');
+  }
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.remove('show'),1800);
+}
+function selectTask(el,title){
+  document.querySelectorAll('.task').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');selectedTask=el;
+  document.getElementById('taskTitle').textContent=title;document.getElementById('taskAction').classList.add('show');
+}
+function completeSelected(){ if(!selectedTask)return; selectedTask.style.opacity=.5; toast('완료 처리했습니다. 되돌리기 가능한 범위는 실제 command policy에 따릅니다.'); }
+function setInvStage(n){
+  document.querySelectorAll('.stage').forEach(x=>x.classList.remove('active'));document.getElementById('inv'+n).classList.add('active');
+  document.querySelectorAll('.step').forEach((x,i)=>{x.classList.toggle('on',i===n-1);x.classList.toggle('done',i<n-1)});
+}
+function seg(btn){btn.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('on'));btn.classList.add('on')}
+function openSheet(title,text,actions){
+  document.getElementById('sheetTitle').textContent=title;document.getElementById('sheetText').textContent=text;const a=document.getElementById('sheetActions');a.innerHTML='';
+  actions.forEach(x=>{const b=document.createElement('button');b.className='btn'+(x.primary?' primary':'');b.textContent=x.label;b.onclick=x.fn;a.appendChild(b)});
+  document.getElementById('sheetbg').classList.add('show');
+}
+function runCommand(){
+ const v=document.getElementById('cmd').value.trim(); if(!v){toast('명령을 입력해 주세요.');return}
+ if(v.includes('재고')&&v.includes('계속')){openSheet('재고실사 이어가기','중단했던 실사 회차 #24의 A-1 입력 화면으로 이동합니다. 데이터 변경은 없습니다.',[{label:'이동',primary:true,fn:()=>{document.getElementById('sheetbg').classList.remove('show');go('inventory');setInvStage(2)}}]);return}
+ if(v.includes('관리')||v.includes('약국장')){ if(role==='manager'){go('manage');toast('관리 센터를 열었습니다.')}else{openSheet('약국장 권한이 필요합니다','현재 직원 모드입니다. UI mode가 실제 권한을 바꾸지는 않습니다. 프로토타입에서는 상단 약국장 버튼으로 시뮬레이션할 수 있습니다.',[{label:'약국장 모드 시뮬레이션',primary:true,fn:()=>{document.getElementById('sheetbg').classList.remove('show');setRole('manager')}},{label:'취소',fn:()=>document.getElementById('sheetbg').classList.remove('show')}])}return}
+ if(v.includes('보고')){go('reports');document.getElementById('draft').classList.add('show');toast('보고 작성 흐름을 열었습니다.');return}
+ if(v.includes('지연')){go('today');toast('지연 업무 2건을 강조 표시하는 조회 예시입니다.');return}
+ openSheet('직접 실행하지 않습니다','현재 canonical command로 직접 실행하지 않는 요청입니다. 관련 화면에서 계속 처리하도록 연결합니다.',[{label:'오늘 화면',primary:true,fn:()=>{document.getElementById('sheetbg').classList.remove('show');go('today')}},{label:'닫기',fn:()=>document.getElementById('sheetbg').classList.remove('show')}]);
+}
+setRole('staff');
+</script>
+</body>
+</html>
