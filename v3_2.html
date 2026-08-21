@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PharmOS Design Prototype v3.2</title>
+<style>
+:root{--bg:#f4f6f8;--surface:#fff;--soft:#f8fafb;--ink:#17212b;--muted:#687581;--line:#dde3e8;--brand:#275f8f;--brand2:#1f7b6f;--danger:#b93838;--warn:#a96912;--shadow:0 10px 28px rgba(20,35,50,.08);--safe:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Apple SD Gothic Neo",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}
+.top{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.toprow{display:flex;justify-content:space-between;align-items:center;padding:13px 14px 8px}.brand{font-size:21px;font-weight:900}.tag{font-size:10px;color:var(--muted)}
+.rolebox{display:flex;background:#eef2f4;border-radius:12px;padding:3px}.rolebox button{border:0;background:transparent;border-radius:9px;padding:8px 10px;font-size:12px}.rolebox .on{background:#fff;box-shadow:0 1px 5px #0001;font-weight:850}
+.rolehint{text-align:right;font-size:10px;color:var(--muted);padding:0 14px 8px}.command{padding:0 14px 12px}.commandbox{display:flex;gap:7px;align-items:center;border:1px solid #d5dde3;background:#f5f7f9;border-radius:14px;padding:5px}.commandbox input{flex:1;border:0;background:transparent;outline:0;padding:10px 7px;min-width:0}.commandbox button{border:0;background:var(--brand);color:#fff;border-radius:10px;padding:10px 12px;font-weight:850}
+.shell{max-width:1180px;margin:auto;padding:16px 14px calc(92px + var(--safe))}.view{display:none}.view.active{display:block}.eyebrow{font-size:11px;letter-spacing:.12em;font-weight:900;color:var(--brand2)}h1{font-size:28px;letter-spacing:-.04em;margin:4px 0 6px}h2{font-size:17px;margin:0}.lead{font-size:13px;color:var(--muted);line-height:1.55;margin:0}
+.surface{background:#fff;border:1px solid var(--line);border-radius:18px;margin-top:14px;overflow:hidden}.elevated{box-shadow:var(--shadow)}.surfacehead{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:15px 15px 11px}.surfacehead small{font-size:11px;color:var(--muted)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:11px;min-height:44px;padding:9px 13px;font-weight:750}.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}.btn.ok{background:var(--brand2);border-color:var(--brand2);color:#fff}.btn.danger{color:var(--danger)}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:13px 14px;border-top:1px solid #edf0f2}.row:first-child{border-top:0}.row b{font-size:13px}.row small{display:block;font-size:11px;color:var(--muted);margin-top:3px}.badge{font-size:10px;font-weight:850;padding:5px 8px;border-radius:999px;background:#edf1f4}.green{background:#e6f2ee;color:#286753}.amber{background:#fff1d9;color:#8b5b11}.red{background:#fdecec;color:#a93030}
+.progress{height:8px;background:#e9edf0;border-radius:999px;overflow:hidden;margin:9px 0}.progress i{display:block;width:42%;height:100%;background:var(--brand2)}.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 14px}.kpi{background:var(--soft);border-radius:12px;padding:10px}.kpi span{font-size:10px;color:var(--muted)}.kpi b{display:block;font-size:17px;margin-top:3px}
+.inventory-mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 14px 14px;background:#eef2f4;border-radius:13px;padding:4px}.invMode{border:0;background:transparent;border-radius:10px;min-height:44px;font-weight:750;color:var(--muted)}.invMode.on{background:#fff;color:var(--ink);box-shadow:0 1px 5px #0001}
+.inventoryInput{display:none;padding:0 14px 14px}.inventoryInput.active{display:block}.inventoryMic{width:100%;min-height:142px;border:1px solid #c7d9e4;border-radius:18px;background:#eef6fa;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:#173e59}.inventoryMic:active{transform:scale(.99);background:#e2f0f6}.micIcon{font-size:34px}.inventoryMic strong{font-size:18px}.inventoryMic small{font-size:12px;color:#607887}.voiceHint{text-align:center;color:var(--muted);font-size:11px;margin-top:9px}
+.voiceResult{display:none;margin:0 14px 14px;border:1px solid #cfe0d9;background:#f3f9f6;border-radius:14px;padding:12px}.voiceResult.show{display:block}.voiceResult b{font-size:14px}.voiceResult small{display:block;color:var(--muted);font-size:11px;margin-top:3px}.actionrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.field{padding:12px 14px;border-top:1px solid #edf0f2}.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}.field input,.field textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px}
+.taskgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0 14px 14px}.task{border:1px solid var(--line);background:#fff;border-radius:14px;min-height:94px;padding:11px;text-align:left}.task b{display:block;font-size:13px}.task small{font-size:11px;color:var(--muted)}.task.warn{background:#fffaf2;border-color:#ead7b5}.task.danger{background:#fff6f6;border-color:#efcece}
+.manageGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.manageCard{border:1px solid var(--line);background:#fff;border-radius:15px;padding:14px;text-align:left;min-height:105px}.manageCard b{display:block}.manageCard span{display:block;color:var(--muted);font-size:11px;margin-top:6px}.ownerOnly{display:none}.manager-mode .ownerOnly{display:block}
+.bottom{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,255,255,.96);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:6px 5px calc(6px + var(--safe));z-index:60}.bottom button{border:0;background:transparent;min-height:56px;color:#66737d;font-size:10px}.bottom .on{color:var(--brand);font-weight:850}.ico{display:block;font-size:19px;margin-bottom:3px}
+.toast{position:fixed;left:14px;right:14px;bottom:82px;background:#172a3a;color:#fff;border-radius:13px;padding:13px 14px;opacity:0;transform:translateY(8px);transition:.18s;z-index:90;pointer-events:none}.toast.show{opacity:1;transform:none}
+@media(min-width:900px){.shell{padding:22px 24px 40px}.bottom{display:none}.taskgrid{grid-template-columns:repeat(4,1fr)}.manageGrid{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<div id="app">
+<header class="top">
+<div class="toprow"><div><div class="brand">PharmOS</div><div class="tag">v3.2 · inventory work-first</div></div><div class="rolebox"><button id="staffBtn" class="on" onclick="setRole('staff')">직원</button><button id="managerBtn" onclick="setRole('manager')">약국장</button></div></div>
+<div class="rolehint">프로토타입 역할 시뮬레이션 · 실제 권한 변경 아님</div>
+<div class="command"><div class="commandbox"><span>⌘</span><input id="cmd" placeholder="예: 재고실사 계속 / 보고 작성"><button onclick="runCommand()">실행</button></div></div>
+</header>
+
+<main class="shell">
+<section id="today" class="view active">
+<div class="eyebrow">NOW</div><h1>지금 약국 상황</h1><p class="lead">현재 상태를 빠르게 보고 바로 행동합니다.</p>
+<div class="surface elevated"><div class="surfacehead"><h2>지금 처리</h2><small>선택 즉시 행동</small></div><div class="taskgrid">
+<button class="task danger" onclick="toast('미확인 보고 2건을 엽니다.')"><b>미확인 보고 2건</b><small>17:30 이전</small></button>
+<button class="task warn" onclick="go('inventory')"><b>재고실사 계속</b><small>A-1 · 18/43</small></button>
+<button class="task" onclick="toast('마감 체크를 엽니다.')"><b>마감 체크</b><small>3/5 완료</small></button>
+<button class="task ownerOnly" onclick="go('manage')"><b>가입 승인 1건</b><small>약국장 확인</small></button>
+</div></div>
+</section>
+
+<section id="inventory" class="view">
+<div class="eyebrow">OPERATE · INVENTORY</div><h1>재고 실사</h1><p class="lead">실제로 약을 세는 작업이 먼저입니다. PM20·매칭·차이는 뒤에서 필요한 때만 확인합니다.</p>
+
+<div class="surface elevated">
+<div class="surfacehead"><div><h2>실사 회차 #24</h2><small>A-1 위치 · 18/43품목</small></div><span class="badge green">진행 중</span></div>
+<div style="padding:0 14px"><div class="progress"><i></i></div></div>
+<div class="kpis"><div class="kpi"><span>입력</span><b>18/43</b></div><div class="kpi"><span>미연결</span><b>6</b></div><div class="kpi"><span>차이</span><b>4</b></div></div>
+</div>
+
+<div class="surface elevated">
+<div class="surfacehead"><h2>지금 실사</h2><button class="btn" onclick="toast('위치 변경 UI를 엽니다.')">A-1 위치 변경</button></div>
+<div class="inventory-mode-switch"><button id="voiceModeBtn" class="invMode on" onclick="setInventoryMode('voice')">🎙 마이크로 입력</button><button id="manualModeBtn" class="invMode" onclick="setInventoryMode('manual')">⌨️ 수기로 입력</button></div>
+
+<div id="voiceInventory" class="inventoryInput active">
+<button class="inventoryMic" onclick="startInventoryVoice()"><span class="micIcon">🎙</span><strong>눌러서 말하기</strong><small>“타이레놀 스물여덟 개”</small></button>
+<div class="voiceHint">약품명과 수량을 말하면 후보를 확인한 뒤 저장합니다.</div>
+</div>
+
+<div id="manualInventory" class="inventoryInput">
+<div class="field"><label>약품 검색</label><input id="invProduct" placeholder="약품명 또는 코드"></div>
+<div class="field"><label>실재고 수량</label><input id="invQty" inputmode="numeric" placeholder="수량"></div>
+<div class="actionrow"><button class="btn primary" onclick="saveManualInventory()">저장</button></div>
+</div>
+
+<div id="voiceResult" class="voiceResult"><div><b>타이레놀정 500mg</b><small>수량 28 · A-1 위치</small></div><div class="actionrow"><button class="btn ok" onclick="confirmInventoryVoice()">이대로 저장</button><button class="btn" onclick="toast('다른 품목 후보를 표시합니다.')">다른 품목</button><button class="btn danger" onclick="cancelInventoryVoice()">취소</button></div></div>
+</div>
+
+<div class="surface"><div class="surfacehead"><h2>최근 입력</h2><small>확인·되돌리기</small></div>
+<div class="row"><div><b>게보린정</b><small>A-1 · 12개 · 방금</small></div><button class="btn danger" onclick="toast('직전 입력을 되돌렸습니다.')">되돌리기</button></div>
+<div class="row"><div><b>아로나민골드</b><small>A-1 · 14개 · 1분 전</small></div><button class="btn" onclick="toast('상세를 엽니다.')">보기</button></div>
+</div>
+
+<div class="surface"><div class="surfacehead"><h2>확인할 것</h2><small>실사를 막지 않고 뒤에서 정리</small></div>
+<div class="row"><div><b>PM20 기준자료</b><small>오늘 09:10 import · source snapshot 보존</small></div><span class="badge green">정상</span></div>
+<div class="row"><div><b>LOCAL ↔ PM20 매칭</b><small>확인 필요한 LOCAL 6품목</small></div><button class="btn" onclick="toggleReview('match')">6건 보기</button></div>
+<div class="row"><div><b>실사 차이</b><small>기준재고와 실제 실사량 차이 4품목</small></div><button class="btn" onclick="toggleReview('diff')">4건 보기</button></div>
+</div>
+
+<div id="matchReview" class="surface" style="display:none"><div class="surfacehead"><h2>LOCAL ↔ PM20 매칭</h2><button class="btn" onclick="toggleReview('match')">닫기</button></div><div class="row"><div><b>LOCAL · 타이레놀정500</b><small>PM20 후보: 타이레놀정 500mg</small></div><span class="badge amber">REVIEW</span></div><div style="padding:0 14px 14px" class="actionrow"><button class="btn ok" onclick="toast('PM20 연결을 확인했습니다. provenance는 유지됩니다.')">이 품목으로 연결</button><button class="btn" onclick="toast('LOCAL 유지 결정을 기록했습니다.')">LOCAL 유지</button></div></div>
+
+<div id="diffReview" class="surface" style="display:none"><div class="surfacehead"><h2>실사 차이</h2><button class="btn" onclick="toggleReview('diff')">닫기</button></div><div class="row"><div><b>타이레놀정 500mg</b><small>PM20 기준 30 · 실사 28</small></div><span class="badge red">-2</span></div><div class="row"><div><b>아로나민골드</b><small>PM20 기준 12 · 실사 14</small></div><span class="badge amber">+2</span></div></div>
+
+<div class="surface"><div class="surfacehead"><h2>실사 종료</h2><small>확정 후 lock</small></div><div style="padding:0 14px 14px" class="actionrow"><button class="btn primary" onclick="toast('프로토타입: 검토 후 확정합니다.')">검토 후 확정</button><button class="btn" onclick="toast('Excel handoff를 준비합니다.')">Excel 내보내기</button></div></div>
+</section>
+
+<section id="reports" class="view"><div class="eyebrow">OPERATE · REPORTS</div><h1>보고</h1><p class="lead">공개범위와 확인 상태를 명확히 유지합니다.</p><div class="surface"><div class="row"><div><b>냉장고 확인 부탁드립니다</b><small>전 직원 공개 · 미확인</small></div><button class="btn" onclick="toast('확인 처리했습니다.')">확인</button></div><div class="row"><div><b>금요일 근무 조정</b><small>약국장에게만 공개</small></div><span class="badge amber">미확인</span></div></div></section>
+
+<section id="schedule" class="view"><div class="eyebrow">OPERATE · SCHEDULE</div><h1>근무·휴가</h1><p class="lead">모바일은 agenda-first입니다.</p><div class="surface"><div class="row"><div><b>09:00 오전 근무</b><small>전약사 · 김약사</small></div><span class="badge green">정상</span></div><div class="row"><div><b>14:00 시간차</b><small>이약사 · 2시간</small></div><span class="badge">승인</span></div><div class="row ownerOnly"><div><b>18:00 역할 충돌</b><small>마감 책임자 중복</small></div><span class="badge red">조정 필요</span></div></div></section>
+
+<section id="manage" class="view"><div class="eyebrow">MANAGE</div><h1>관리 센터</h1><p class="lead">약국장 capability 진입점입니다.</p><div id="manageLocked" class="surface"><div style="padding:14px">현재 직원 모드입니다. 상단에서 약국장을 선택하세요.</div></div><div class="ownerOnly"><div class="manageGrid"><button class="manageCard"><b>사람</b><span>직원 · 가입 · 권한 · 퇴사</span></button><button class="manageCard"><b>업무 시스템</b><span>반복업무 · 분석 · 정책</span></button><button class="manageCard"><b>Intelligence</b><span>AI 품질 · 비용 · Local Shadow</span></button><button class="manageCard"><b>System</b><span>Backup · 계정 · 시스템 상태</span></button></div></div></section>
+</main>
+
+<nav class="bottom"><button data-go="today" class="on"><span class="ico">●</span>오늘</button><button data-go="inventory"><span class="ico">▦</span>재고</button><button data-go="reports"><span class="ico">▤</span>보고</button><button data-go="schedule"><span class="ico">◫</span>근무</button><button data-go="manage"><span class="ico">⌘</span>전체</button></nav>
+<div class="toast" id="toast"></div>
+</div>
+<script>
+let role='staff';
+function go(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('[data-go]').forEach(b=>b.classList.toggle('on',b.dataset.go===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+function setRole(next){role=next;document.getElementById('app').classList.toggle('manager-mode',role==='manager');document.getElementById('staffBtn').classList.toggle('on',role==='staff');document.getElementById('managerBtn').classList.toggle('on',role==='manager');document.getElementById('manageLocked').style.display=role==='manager'?'none':'block';if(role==='manager'){go('manage');toast('약국장 모드가 열렸습니다.')}else{if(document.getElementById('manage').classList.contains('active'))go('today');toast('직원 화면으로 돌아왔습니다.')}}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.remove('show'),1900)}
+function setInventoryMode(mode){document.getElementById('voiceModeBtn').classList.toggle('on',mode==='voice');document.getElementById('manualModeBtn').classList.toggle('on',mode==='manual');document.getElementById('voiceInventory').classList.toggle('active',mode==='voice');document.getElementById('manualInventory').classList.toggle('active',mode==='manual')}
+function startInventoryVoice(){const b=document.querySelector('.inventoryMic');b.querySelector('strong').textContent='듣고 있습니다…';setTimeout(()=>{b.querySelector('strong').textContent='눌러서 말하기';document.getElementById('voiceResult').classList.add('show');toast('“타이레놀 28개”로 이해했습니다. 저장 전 확인해 주세요.')},650)}
+function confirmInventoryVoice(){document.getElementById('voiceResult').classList.remove('show');toast('타이레놀정 500mg · 28개를 A-1 위치에 저장했습니다.')}
+function cancelInventoryVoice(){document.getElementById('voiceResult').classList.remove('show');toast('음성 입력을 취소했습니다.')}
+function saveManualInventory(){const p=document.getElementById('invProduct').value||'선택한 품목';const q=document.getElementById('invQty').value||'0';toast(p+' · '+q+'개를 저장했습니다.')}
+function toggleReview(type){const el=document.getElementById(type==='match'?'matchReview':'diffReview');el.style.display=el.style.display==='none'?'block':'none';if(el.style.display==='block')el.scrollIntoView({behavior:'smooth',block:'start'})}
+function runCommand(){const v=document.getElementById('cmd').value.trim();if(!v){toast('명령을 입력해 주세요.');return}if(v.includes('재고')){go('inventory');setInventoryMode('voice');toast('재고실사 음성 입력으로 이동했습니다.');return}if(v.includes('보고')){go('reports');toast('보고 화면으로 이동했습니다.');return}if(v.includes('관리')){if(role==='manager')go('manage');else toast('약국장 모드가 필요합니다.');return}toast('관련 화면에서 계속 처리합니다.')}
+setRole('staff');
+</script>
+</body>
+</html>
